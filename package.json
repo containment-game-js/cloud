@@ -1,0 +1,8 @@
+{
+  "name": "containment-cloud",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Arthur <arthur.escriou@gmail.com>",
+  "license": "MIT",
+  "dependencies": {}
+}
