@@ -148,13 +148,10 @@ const closeRoom = async ({ uid, data }) => {
 
 const disconnectUser = async ({ uid, data }) => {
   // logInfo.socketDisconnect({ sid: socket.id })
-  // const fiveMinutes = 300000
-  // const canceller = setTimeout(() => {
-  //   user.rooms.forEach(rid => {
-  //     leaveRoom({ socket, io })({ id: user.id, rid })
-  //   })
-  // }, fiveMinutes)
-  // Users.addCanceller(user.id, canceller)
+  const userRooms = await rooms.getUserAll({ uid, data })
+  userRooms.forEach(async rid => {
+    await leaveRoom({ uid, data: { rid } })
+  })
 }
 
 const respond = async ({ type, uid, data }) => {

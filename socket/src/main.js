@@ -2,12 +2,12 @@ const app = require('express')()
 const cors = require('cors')
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
-const { findBy, set, get } = require('./users')
+const { findBy, set, get, addCanceller, removeCanceller } = require('./users')
 const log = require('./log')
 const { eventType } = require('./events')
 const {
   topic,
-  subscription,
+  // subscription,
   initializeSubscription,
   closeSubscription,
 } = require('./pubsub')
@@ -19,8 +19,9 @@ const MAX_CONNECTIONS =
     ? undefined
     : process.env.MAX_CONNECTIONS || 100
 
-const updateSocket = socket => event => data => {
+const updateSocket = (socket, event) => data => {
   set({ socket, id: data.id, name: data.name })
+  removeCanceller(data.id)
   send(event)(data)
 }
 
@@ -40,13 +41,26 @@ const sendData = async toSend => {
   log('[sendData]-messageId:', messageId)
 }
 
+const disconnectUser = ({ socket }) => () => {
+  // logInfo.socketDisconnect({ sid: socket.id })
+  const user = findBy({ socket })
+  if (user) {
+    const fiveMinutes = 300000
+    const canceller = setTimeout(() => {
+      const { name, id } = user
+      send(eventType.DISCONNECT)({ name, id })
+    }, fiveMinutes)
+    addCanceller(user.id, canceller)
+  }
+}
+
 io.on('connection', socket => {
   log('[connection]:', socket.id)
-  socket.on(eventType.CREATE_ROOM, updateSocket(socket)(eventType.CREATE_ROOM))
-  socket.on(eventType.ENTER_ROOM, updateSocket(socket)(eventType.ENTER_ROOM))
+  socket.on(eventType.CREATE_ROOM, updateSocket(socket, eventType.CREATE_ROOM))
+  socket.on(eventType.ENTER_ROOM, updateSocket(socket, eventType.ENTER_ROOM))
   socket.on(eventType.CLOSE_ROOM, send(eventType.CLOSE_ROOM))
   socket.on(eventType.LEAVE_ROOM, send(eventType.LEAVE_ROOM))
-  socket.on(eventType.DISCONNECT, send(eventType.DISCONNECT))
+  socket.on(eventType.DISCONNECT, disconnectUser({ socket }))
   socket.on(eventType.ACTION, send(eventType.ACTION))
   socket.on(eventType.STATE, send(eventType.STATE))
   socket.on(eventType.KICK, send(eventType.KICK))

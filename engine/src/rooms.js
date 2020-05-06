@@ -51,6 +51,14 @@ const close = room => {
   return firestore.room(room.id).delete()
 }
 
+const getUserAll = async ({ uid, data }) => {
+  const { name } = data
+  const { docs } = await firestore.rooms
+    .where('players', 'array-contains', { name, uid })
+    .get()
+  return docs.map(doc => doc.ref.id)
+}
+
 module.exports = {
   set,
   get,
@@ -61,4 +69,5 @@ module.exports = {
   getPlayer,
   removePlayer,
   close,
+  getUserAll,
 }
