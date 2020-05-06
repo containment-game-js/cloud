@@ -1,13 +1,17 @@
-const {PubSub} = require('@google-cloud/pubsub');
+const { PubSub } = require('@google-cloud/pubsub')
 const uuidv4 = require('uuid').v4
 const log = require('./log')
 
-const pubsub = new PubSub();
-const topic = pubsub.topic('projects/containment-game-js/topics/gke-broker-socket-to-engine');
-const topicToSub = pubsub.topic('projects/containment-game-js/topics/gke-broker-engine-to-socket');
+const pubsub = new PubSub()
+const topic = pubsub.topic(
+  'projects/containment-game-js/topics/gke-broker-socket-to-engine'
+)
+const topicToSub = pubsub.topic(
+  'projects/containment-game-js/topics/gke-broker-engine-to-socket'
+)
 let subscription
 
-const initializeSubscription = async (messageHandler) => {
+const initializeSubscription = async messageHandler => {
   if (process.env.NODE_ENV !== 'development') {
     const subName = 'socket' + uuidv4()
     const [sub, res] = await topicToSub.createSubscription(subName)
@@ -15,7 +19,9 @@ const initializeSubscription = async (messageHandler) => {
     subscription = sub
     subscription.on('message', messageHandler)
   } else {
-    subscription = pubsub.subscription('projects/containment-game-js/subscriptions/socket')
+    subscription = pubsub.subscription(
+      'projects/containment-game-js/subscriptions/socket'
+    )
   }
 }
 
@@ -31,5 +37,5 @@ module.exports = {
   topic,
   subscription,
   initializeSubscription,
-  closeSubscription
+  closeSubscription,
 }

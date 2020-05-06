@@ -17,8 +17,23 @@ const set = ({ socket, id, name }) => {
 
 const get = id => users[id]
 
+const addCanceller = (uid, canceller) => {
+  const user = users[uid]
+  user.canceller = canceller
+  return user
+}
+
+const removeCanceller = id => {
+  const user = users[id]
+  clearTimeout(user.canceller)
+  delete user.canceller
+  return user
+}
+
 module.exports = {
   findBy,
   set,
-  get
+  get,
+  addCanceller,
+  removeCanceller,
 }

@@ -4,4 +4,4 @@
 //   :  () => {};
 //
 // module.exports = log
- module.exports = console.log
+module.exports = console.log
