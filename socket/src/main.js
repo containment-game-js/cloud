@@ -34,14 +34,14 @@ const send = event => data => {
 }
 
 const sendData = async toSend => {
-  log(toSend)
+  log('[sendData]:', toSend)
   const dataBuffer = Buffer.from(JSON.stringify(toSend))
   const messageId = await topic.publish(dataBuffer)
-  log('send', messageId)
+  log('[sendData]-messageId:', messageId)
 }
 
 io.on('connection', socket => {
-  log(socket.id)
+  log('[connection]:', socket.id)
   socket.on(eventType.CREATE_ROOM, updateSocket(socket)(eventType.CREATE_ROOM))
   socket.on(eventType.ENTER_ROOM, updateSocket(socket)(eventType.ENTER_ROOM))
   socket.on(eventType.CLOSE_ROOM, send(eventType.CLOSE_ROOM))
@@ -54,11 +54,11 @@ io.on('connection', socket => {
 
 const messageHandler = message => {
   const messageContent = JSON.parse(message.data.toString('utf8'))
-  log(messageContent)
+  log('[messageHandler]:', messageContent)
   const user = get(messageContent.uid)
   if (user && user.socket.connected) {
     user.socket.emit(messageContent.type, messageContent.data)
-    log('to client', messageContent.type, messageContent.data)
+    log('[messageHandler]-sending:', messageContent.type, messageContent.data)
   }
   message.ack()
 }

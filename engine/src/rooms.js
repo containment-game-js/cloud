@@ -31,6 +31,23 @@ const addPlayer = async (rid, player) => {
   await firestore.room(rid).update({ players: firestore.union(player) })
 }
 
+const getPlayer = (room, id) => {
+  if (room) {
+    return room.players.find(player => player.uid === id)
+  } else {
+    return null
+  }
+}
+
+const removePlayer = (room, player) => {
+  const players = room.players.filter(({ uid }) => uid !== player.uid)
+  return firestore.room(room.id).update({ players })
+}
+
+const close = room => {
+  return firestore.room(room.id).delete()
+}
+
 module.exports = {
   set,
   get,
@@ -38,4 +55,7 @@ module.exports = {
   all,
   toSerializable,
   addPlayer,
+  getPlayer,
+  removePlayer,
+  close,
 }
