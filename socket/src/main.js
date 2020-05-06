@@ -1,16 +1,23 @@
 const app = require('express')()
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
-const {findBy, set, get} = require('./users')
+const { findBy, set, get } = require('./users')
 const log = require('./log')
-const {topic, subscription, initializeSubscription, closeSubscription} = require('./pubsub')
+const { eventType } = require('./events')
+const {
+  topic,
+  subscription,
+  initializeSubscription,
+  closeSubscription,
+} = require('./pubsub')
 
-const MAX_CONNECTIONS = process.env.NODE_ENV === 'development'
-  ? undefined
-  : process.env.MAX_CONNECTIONS || 100
+const MAX_CONNECTIONS =
+  process.env.NODE_ENV === 'development'
+    ? undefined
+    : process.env.MAX_CONNECTIONS || 100
 
 const updateSocket = socket => event => data => {
-  set({socket, id: data.id, name: data.name})
+  set({ socket, id: data.id, name: data.name })
   send(event)(data)
 }
 
@@ -18,28 +25,28 @@ const send = event => data => {
   const toSend = {
     type: event,
     uid: data.id,
-    data
+    data,
   }
   sendData(toSend)
 }
 
 const sendData = async toSend => {
   log(toSend)
-  const dataBuffer = Buffer.from(JSON.stringify(toSend));
-  const messageId = await topic.publish(dataBuffer);
+  const dataBuffer = Buffer.from(JSON.stringify(toSend))
+  const messageId = await topic.publish(dataBuffer)
   log('send', messageId)
 }
 
 io.on('connection', socket => {
   log(socket.id)
-  socket.on('create-room', updateSocket(socket)('create-room'))
-  socket.on('enter-room', updateSocket(socket)('enter-room'))
-  socket.on('close-room', send('close-room'))
-  socket.on('leave-room', send('leave-room'))
-  socket.on('disconnect', send('disconnect'))
-  socket.on('action', send('action'))
-  socket.on('state', send('state'))
-  socket.on('kick', send('kick'))
+  socket.on(eventType.CREATE_ROOM, updateSocket(socket)(eventType.CREATE_ROOM))
+  socket.on(eventType.ENTER_ROOM, updateSocket(socket)(eventType.ENTER_ROOM))
+  socket.on(eventType.CLOSE_ROOM, send(eventType.CLOSE_ROOM))
+  socket.on(eventType.LEAVE_ROOM, send(eventType.LEAVE_ROOM))
+  socket.on(eventType.DISCONNECT, send(eventType.DISCONNECT))
+  socket.on(eventType.ACTION, send(eventType.ACTION))
+  socket.on(eventType.STATE, send(eventType.STATE))
+  socket.on(eventType.KICK, send(eventType.KICK))
 })
 
 const messageHandler = message => {
@@ -49,11 +56,8 @@ const messageHandler = message => {
   if (user && user.socket.connected) {
     user.socket.emit(messageContent.type, messageContent.data)
     log('to client', messageContent.type, messageContent.data)
-    message.ack();
-  } else {
-    log('NACK!', messageContent.uid)
-    message.nack();
   }
+  message.ack()
 }
 
 initializeSubscription(messageHandler)
@@ -69,6 +73,6 @@ process.on('SIGINT', async () => {
   log('closing...')
   await closeSubscription()
   server.close()
-  log('closed');
-  process.exit();
-});
+  log('closed')
+  process.exit()
+})

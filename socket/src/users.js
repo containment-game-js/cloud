@@ -20,5 +20,5 @@ const get = id => users[id]
 module.exports = {
   findBy,
   set,
-  get
+  get,
 }

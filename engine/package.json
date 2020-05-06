@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@google-cloud/firestore": "^3.7.5",
     "@google-cloud/pubsub": "^1.7.2",
     "uuid": "^8.0.0"
   },
