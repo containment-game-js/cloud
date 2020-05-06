@@ -6,6 +6,7 @@
   "dependencies": {
     "@google-cloud/firestore": "^3.7.5",
     "@google-cloud/pubsub": "^1.7.2",
+    "faker": "^4.1.0",
     "uuid": "^8.0.0"
   },
   "scripts": {

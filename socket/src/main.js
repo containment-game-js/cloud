@@ -1,4 +1,5 @@
 const app = require('express')()
+const cors = require('cors')
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
 const { findBy, set, get } = require('./users')
@@ -10,6 +11,8 @@ const {
   initializeSubscription,
   closeSubscription,
 } = require('./pubsub')
+
+app.use(cors())
 
 const MAX_CONNECTIONS =
   process.env.NODE_ENV === 'development'
