@@ -28,7 +28,10 @@ const get = async rid => {
 }
 
 const addPlayer = async (rid, player) => {
-  await firestore.room(rid).update({ players: firestore.union(player) })
+  const room = await firestore.room(rid).get()
+  const oldPlayers = room.data().players.filter(({ uid }) => uid !== player.uid)
+  const players = [...oldPlayers, player]
+  await firestore.room(rid).update({ players })
 }
 
 const getPlayer = (room, id) => {
