@@ -26,4 +26,4 @@ app.get('/get-room-info/:rid', async (req, res) => {
   }
 })
 
-app.listen(5000)
+app.listen(process.env.PORT)
