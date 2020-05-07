@@ -33,7 +33,7 @@ const createRoom = async ({ uid, data }) => {
   if (helpers.validateUUID(uid)) {
     const rid = uuidv4()
     const roomName = faker.hacker.noun()
-    const players = [{ uid, name: data.name }]
+    const players = [{ uid, id: uid, name: data.name }]
     rooms.set(rid, {
       id: rid,
       host: uid,
