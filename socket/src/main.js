@@ -81,6 +81,10 @@ initializeSubscription(messageHandler)
 
 const port = process.env.PORT || 3030
 
+app.get('/', (req, res) => {
+  res.send('OK')
+})
+
 server.maxConnections = MAX_CONNECTIONS
 server.listen(port, () => {
   log(`Listening on ${port}`)
