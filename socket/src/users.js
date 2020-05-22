@@ -11,7 +11,8 @@ const findBy = ({ socket }) => {
 }
 
 const set = ({ socket, id, name }) => {
-  users[id] = { name, socket }
+  const user = users[id] || {}
+  users[id] = { ...user, name, socket }
   return name
 }
 
